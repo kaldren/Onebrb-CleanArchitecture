@@ -114,7 +114,7 @@ namespace Onebrb.Server.Controllers.Api
             }
             else
             {
-                messages = await _mediator.Send(new GetSentMessagesQuery(currentUser.Id));
+                messages = await _mediator.Send(new GetReceivedMessagesQuery(currentUser.Id));
             }
 
             var viewModel = _mapper.Map<List<MessageDto>>(messages);
