@@ -77,14 +77,15 @@ namespace Onebrb.Server.Controllers.Api
         }
 
         /// <summary>
-        /// Get all received, sent or archived messages
+        /// Gets all received, sent or archived messages
         /// </summary>
-        /// <param name="type">Message type - sent, received or archived</param>
+        /// <param name="type">Messages type (sent, received or archived)</param>
         /// <returns>All of the user's sent, received or archived messages</returns>
         /// <response code="200">Returns the requested messages</response>
-        [HttpGet("{type?}")]
+        [HttpGet]
         [ProducesResponseType(StatusCodes.Status200OK)]
-        public async Task<IActionResult> Get([FromQuery] string type = "received")
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        public async Task<IActionResult> GetAll([FromQuery] string type = "received")
         {
             var currentUser = await _userManager.GetUserAsync(HttpContext.User);
             List<Message> messages = new List<Message>();
