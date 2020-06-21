@@ -28,7 +28,7 @@ namespace Onebrb.Services.Messages
 
         public async Task<IEnumerable<Message>> GetAllSentMessages(int userId)
         {
-            var result = await _messageRepository.FindAsync(x => x.Id == userId);
+            var result = await _messageRepository.FindAsync(x => x.AuthorId == userId);
 
             if (result == null)
             {

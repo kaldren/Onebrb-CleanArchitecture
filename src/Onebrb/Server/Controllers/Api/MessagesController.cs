@@ -92,42 +92,34 @@ namespace Onebrb.Server.Controllers.Api
                 switch (show)
                 {
                     case "sent":
-                        var result = await _mediator.Send(new GetSentMessagesQuery(currentUser.Id));
-                        messages = result;
+                        messages = await _mediator.Send(new GetSentMessagesQuery(currentUser.Id));
                         break;
-                        //case "received":
-                        //    messages = await _db.Messages
-                        //            .Where(x => x.ApplicationUserMessages
-                        //                .Any(x => x.ApplicationUser.Id == currentUser.Id)
-                        //                && x.RecipientId == currentUser.Id
-                        //                && !x.IsDeletedForRecipient
-                        //                && !x.IsArchivedForRecipient)
-                        //            .ToListAsync();
-                        //    break;
-                        //case "archived":
-                        //    messages = await _db.Messages
-                        //            .Where(x => x.ApplicationUserMessages
-                        //                .Any(x => x.ApplicationUser.Id == currentUser.Id)
-                        //                && x.RecipientId == currentUser.Id
-                        //                && x.IsArchivedForRecipient
-                        //                && !x.IsDeletedForRecipient)
-                        //            .ToListAsync();
-                        //    break;
-                        //default:
-                        //    messages = await _db.Messages
-                        //            .Where(x => x.ApplicationUserMessages
-                        //                .Any(x => x.ApplicationUser.Id == currentUser.Id)
-                        //                && x.AuthorId == currentUser.Id
-                        //                && !x.IsDeletedForAuthor
-                        //                && !x.IsArchivedForAuthor)
-                        //            .ToListAsync();
-                        //    break;
+                    //case "received":
+                    //    messages = await _db.Messages
+                    //            .Where(x => x.ApplicationUserMessages
+                    //                .Any(x => x.ApplicationUser.Id == currentUser.Id)
+                    //                && x.RecipientId == currentUser.Id
+                    //                && !x.IsDeletedForRecipient
+                    //                && !x.IsArchivedForRecipient)
+                    //            .ToListAsync();
+                    //    break;
+                    //case "archived":
+                    //    messages = await _db.Messages
+                    //            .Where(x => x.ApplicationUserMessages
+                    //                .Any(x => x.ApplicationUser.Id == currentUser.Id)
+                    //                && x.RecipientId == currentUser.Id
+                    //                && x.IsArchivedForRecipient
+                    //                && !x.IsDeletedForRecipient)
+                    //            .ToListAsync();
+                    //    break;
+                    default:
+                        messages = await _mediator.Send(new GetSentMessagesQuery(currentUser.Id));
+                        break;
                 }
             }
             else
             {
-                //var result = await _messageRepository.GetAllAsync(currentUser.Id);
-                //messages = result.ToList();
+                messages = await _mediator.Send(new GetSentMessagesQuery(currentUser.Id));
             }
 
             var viewModel = _mapper.Map<List<MessageDto>>(messages);
