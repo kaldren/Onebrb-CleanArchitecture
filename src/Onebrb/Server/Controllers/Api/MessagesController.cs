@@ -79,17 +79,17 @@ namespace Onebrb.Server.Controllers.Api
         /// <summary>
         /// Get all received, sent or archived messages
         /// </summary>
-        /// <param name="show">The type of messages collection (sent, received or archived) to return</param>
+        /// <param name="type">Message type - sent, received or archived</param>
         /// <returns>All of the user's sent, received or archived messages</returns>
         /// <response code="200">Returns the requested messages</response>
-        [HttpGet("{show?}")]
+        [HttpGet("{type?}")]
         [ProducesResponseType(StatusCodes.Status200OK)]
-        public async Task<IActionResult> Get([FromQuery] string show = "received")
+        public async Task<IActionResult> Get([FromQuery] string type = "received")
         {
             var currentUser = await _userManager.GetUserAsync(HttpContext.User);
             List<Message> messages = new List<Message>();
 
-            switch (show)
+            switch (type)
             {
                 case "sent":
                     messages = await _mediator.Send(new GetSentMessagesQuery(currentUser.Id));

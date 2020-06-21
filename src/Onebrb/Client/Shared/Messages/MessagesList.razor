@@ -64,10 +64,28 @@ else if (Model != null && Model.Count > 0)
     public List<MessageDto> Model { get; set; }
     public MessagesSettings MessageSettings { get; set; }
     public UsersSettings UsersSettings { get; set; }
-    public string CssClass { get; set; } = "alert alert-info";
-    public string StatusMessage { get; set; } = "Loading...";
+
     public string Recipient { get; set; }
     public bool ShowReplyForm { get; set; }
+
+    // CSS classes
+    public string CssClassAlertDanger { get; set; } = "alert alert-danger";
+    public string CssClassAlertInfo { get; set; } = "alert alert-info";
+    public string CssClass { get; set; } = "alert alert-info";
+
+
+    // Text messages
+    public string StatusMessage { get; set; } = "Loading...";
+    public string PleaseWaitText { get; set; } = "Please wait...";
+    public string ReceivedMessagesText { get; set; } = "Received messages";
+    public string ReceivedMessagesEmptyText { get; set; } = "No received messages found.";
+    public string SentMessagesText { get; set; } = "Sent messages";
+    public string SentMessagesEmptyText { get; set; } = "You don't have any sent messages.";
+    public string ArchivedMessagesText { get; set; } = "Archived messages";
+    public string ArchivedMessagesEmptyText { get; set; } = "You don't have any archived messages.";
+    public string DeletingMessageText { get; set; } = "Deleting the message, please wait...";
+    public string DeletingMessageSuccessText { get; set; } = "The message has been deleted.";
+    public string DeletingMessageFailedText { get; set; } = "Couldn't delete the message, please try again.";
 
     protected override async Task OnInitializedAsync()
     {
@@ -78,27 +96,27 @@ else if (Model != null && Model.Count > 0)
 
         if (Model != null && Model.Count > 0)
         {
-            StatusMessage = "Received Messages";
+            StatusMessage = ReceivedMessagesText;
         }
         else
         {
-            StatusMessage = "Couldn't fetch your messages.";
+            StatusMessage = ReceivedMessagesEmptyText;
         }
     }
 
     private async Task DeleteMessage(int id)
     {
-        StatusMessage = $"Deleting the message, please wait...";
+        StatusMessage = DeletingMessageText;
 
         var result = await Http.DeleteAsync($"{MessageSettings.DeleteApiEndpoint}/{id}");
 
         if (!result.IsSuccessStatusCode)
         {
-            StatusMessage = $"Couldn't delete the message, please try again.";
+            StatusMessage = DeletingMessageFailedText;
         }
         else
         {
-            StatusMessage = $"The message has been deleted.";
+            StatusMessage = DeletingMessageSuccessText;
         }
 
         if (Model != null && Model.Count > 0)
@@ -112,13 +130,13 @@ else if (Model != null && Model.Count > 0)
     {
         Recipient = recipient;
 
-        StatusMessage = $"Loading reply to {recipient}, please wait...";
+        StatusMessage = PleaseWaitText;
 
         var response = await Http.GetAsync($"{UsersSettings.GetUserApiEndpoint}/{recipient}");
 
         if (!response.IsSuccessStatusCode)
         {
-            CssClass = "alert alert-danger";
+            CssClass = CssClassAlertDanger;
             StatusMessage = $"{Recipient} user doesn't exist.";
         }
         else
@@ -129,25 +147,25 @@ else if (Model != null && Model.Count > 0)
 
     }
 
-    private async Task OnMessageOptionsButtonClick(string show = "received")
+    private async Task OnMessageOptionsButtonClick(string type = "received")
     {
         ShowReplyForm = false;
 
         MessageSettings = Configuration.GetSection(nameof(ApiSettings)).Get<ApiSettings>().MessagesSettings;
         UsersSettings = Configuration.GetSection(nameof(ApiSettings)).Get<ApiSettings>().UsersSettings;
 
-        switch (show)
+        switch (type)
         {
             case "sent":
                 Model = await Http.GetFromJsonAsync<List<MessageDto>>($"{MessageSettings.GetAllSentApiEndpoint}");
 
                 if (Model != null && Model.Count > 0)
                 {
-                    StatusMessage = "Sent Messages";
+                    StatusMessage = SentMessagesText;
                 }
                 else
                 {
-                    StatusMessage = "No sent messages found.";
+                    StatusMessage = SentMessagesEmptyText;
                 }
                 break;
             case "received":
@@ -155,11 +173,11 @@ else if (Model != null && Model.Count > 0)
 
                 if (Model != null && Model.Count > 0)
                 {
-                    StatusMessage = "Received Messages";
+                    StatusMessage = ReceivedMessagesText;
                 }
                 else
                 {
-                    StatusMessage = "No received messages found.";
+                    StatusMessage = ReceivedMessagesEmptyText;
                 }
                 break;
             case "archived":
@@ -167,11 +185,11 @@ else if (Model != null && Model.Count > 0)
 
                 if (Model != null && Model.Count > 0)
                 {
-                    StatusMessage = "Archived Messages";
+                    StatusMessage = ArchivedMessagesText;
                 }
                 else
                 {
-                    StatusMessage = "No archived messages found.";
+                    StatusMessage = ArchivedMessagesEmptyText;
                 }
                 break;
             default:
@@ -179,11 +197,11 @@ else if (Model != null && Model.Count > 0)
 
                 if (Model != null && Model.Count > 0)
                 {
-                    StatusMessage = "Received Messages";
+                    StatusMessage = ReceivedMessagesText;
                 }
                 else
                 {
-                    StatusMessage = "No received messages found.";
+                    StatusMessage = ReceivedMessagesEmptyText;
                 }
                 break;
         }

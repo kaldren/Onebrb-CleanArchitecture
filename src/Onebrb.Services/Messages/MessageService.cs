@@ -43,7 +43,10 @@ namespace Onebrb.Services.Messages
 
         public async Task<IEnumerable<Message>> GetAllReceivedMessages(int userId)
         {
-            var result = await _messageRepository.FindAsync(x => x.RecipientId == userId);
+            var result = await _messageRepository.FindAsync(x => 
+                                                            x.RecipientId == userId &&
+                                                           !x.IsDeletedForRecipient &&
+                                                           !x.IsArchivedForRecipient);
 
             if (result == null)
             {
