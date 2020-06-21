@@ -3,6 +3,7 @@ using Onebrb.Core.Interfaces.Repos;
 using Onebrb.Core.Interfaces.Services.Messages;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -23,6 +24,18 @@ namespace Onebrb.Services.Messages
             await _messageRepository.SaveChangesAsync();
 
             return entity;
+        }
+
+        public async Task<IEnumerable<Message>> GetAllSentMessages(int userId)
+        {
+            var result = await _messageRepository.FindAsync(x => x.Id == userId);
+
+            if (result == null)
+            {
+                return Enumerable.Empty<Message>();
+            }
+
+            return result;
         }
 
         public async Task<Message> GetMessageById(int id)

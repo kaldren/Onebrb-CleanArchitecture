@@ -1,0 +1,191 @@
+﻿@using Onebrb.Core.Dtos.Messages
+@using Onebrb.Client.Settings
+@using Microsoft.Extensions.Configuration
+@using System.Net.Http
+@using System.Collections.Generic
+@inject IConfiguration Configuration
+@inject HttpClient Http
+
+<Notification CssClass="@CssClass" Message="@StatusMessage" />
+
+<div class="messages-list-options">
+    <button class="btn btn-primary" @onclick="@(e => OnMessageOptionsButtonClick("received"))">Received</button>
+    <button class="btn btn-primary" @onclick="@(e => OnMessageOptionsButtonClick("sent"))">Sent</button>
+    <button class="btn btn-primary" @onclick="@(e => OnMessageOptionsButtonClick("archived"))">Archived</button>
+</div>
+
+@if (ShowReplyForm)
+{
+    <MessageForm Recipient="@Recipient" @bind-ShowReplyForm="ShowReplyForm"></MessageForm>
+}
+else if (Model != null && Model.Count > 0)
+{
+    <table class="table table-striped">
+        <thead>
+            <tr>
+                <th scope="col">#</th>
+                <th scope="col">Title</th>
+                <th scope="col">Text</th>
+                <th scope="col">Date Sent</th>
+                <th scope="col">From</th>
+                <th scope="col"></th>
+            </tr>
+        </thead>
+        <tbody>
+            @for (int i = 0; i < Model.Count; i++)
+            {
+                int messageId = @Model[i].Id;
+                string recipient = @Model[i].RecipientUserName;
+
+                <tr>
+                    <th scope="row">@(i+1)</th>
+                    <td>@Model[i].Title</td>
+                    <td>@Model[i].Body</td>
+                    <td>@Model[i].DateSent</td>
+                    <td><a href="/users/@Model[i].AuthorUserName">@Model[i].AuthorUserName</a></td>
+                    <td>
+                        <button title="Reply" class="btn btn-success"
+                                @onclick="@(e => ReplyMessage(messageId, recipient))">
+                            <i class="fas fa-reply"></i>
+                        </button>
+                        <button title="Delete" class="btn btn-danger"
+                                @onclick="@(e => DeleteMessage(messageId))">
+                            <i class="fas fa-trash-alt"></i>
+                        </button>
+                    </td>
+                </tr>
+            }
+
+        </tbody>
+    </table>
+
+}
+@code {
+    public List<MessageDto> Model { get; set; }
+    public MessagesSettings MessageSettings { get; set; }
+    public UsersSettings UsersSettings { get; set; }
+    public string CssClass { get; set; } = "alert alert-info";
+    public string StatusMessage { get; set; } = "Loading...";
+    public string Recipient { get; set; }
+    public bool ShowReplyForm { get; set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        MessageSettings = Configuration.GetSection(nameof(ApiSettings)).Get<ApiSettings>().MessagesSettings;
+        UsersSettings = Configuration.GetSection(nameof(ApiSettings)).Get<ApiSettings>().UsersSettings;
+
+        Model = await Http.GetFromJsonAsync<List<MessageDto>>($"{MessageSettings.GetAllApiEndpoint}");
+
+        if (Model != null && Model.Count > 0)
+        {
+            StatusMessage = "Received Messages";
+        }
+        else
+        {
+            StatusMessage = "Couldn't fetch your messages.";
+        }
+    }
+
+    private async Task DeleteMessage(int id)
+    {
+        StatusMessage = $"Deleting the message, please wait...";
+
+        var result = await Http.DeleteAsync($"{MessageSettings.DeleteApiEndpoint}/{id}");
+
+        if (!result.IsSuccessStatusCode)
+        {
+            StatusMessage = $"Couldn't delete the message, please try again.";
+        }
+        else
+        {
+            StatusMessage = $"The message has been deleted.";
+        }
+
+        if (Model != null && Model.Count > 0)
+        {
+            var messageToDelete = Model.FirstOrDefault(x => x.Id == id);
+            Model.Remove(messageToDelete);
+        }
+    }
+
+    private async Task ReplyMessage(int id, string recipient)
+    {
+        Recipient = recipient;
+
+        StatusMessage = $"Loading reply to {recipient}, please wait...";
+
+        var response = await Http.GetAsync($"{UsersSettings.GetUserApiEndpoint}/{recipient}");
+
+        if (!response.IsSuccessStatusCode)
+        {
+            CssClass = "alert alert-danger";
+            StatusMessage = $"{Recipient} user doesn't exist.";
+        }
+        else
+        {
+            StatusMessage = $"Replying to {Recipient}";
+            ShowReplyForm = true;
+        }
+
+    }
+
+    private async Task OnMessageOptionsButtonClick(string show = "received")
+    {
+        ShowReplyForm = false;
+
+        MessageSettings = Configuration.GetSection(nameof(ApiSettings)).Get<ApiSettings>().MessagesSettings;
+        UsersSettings = Configuration.GetSection(nameof(ApiSettings)).Get<ApiSettings>().UsersSettings;
+
+        switch (show)
+        {
+            case "sent":
+                Model = await Http.GetFromJsonAsync<List<MessageDto>>($"{MessageSettings.GetAllSentApiEndpoint}");
+
+                if (Model != null && Model.Count > 0)
+                {
+                    StatusMessage = "Sent Messages";
+                }
+                else
+                {
+                    StatusMessage = "No sent messages found.";
+                }
+                break;
+            case "received":
+                Model = await Http.GetFromJsonAsync<List<MessageDto>>($"{MessageSettings.GetAllReceivedApiEndpoint}");
+
+                if (Model != null && Model.Count > 0)
+                {
+                    StatusMessage = "Received Messages";
+                }
+                else
+                {
+                    StatusMessage = "No received messages found.";
+                }
+                break;
+            case "archived":
+                Model = await Http.GetFromJsonAsync<List<MessageDto>>($"{MessageSettings.GetAllArchivedApiEndpoint}");
+
+                if (Model != null && Model.Count > 0)
+                {
+                    StatusMessage = "Archived Messages";
+                }
+                else
+                {
+                    StatusMessage = "No archived messages found.";
+                }
+                break;
+            default:
+                Model = await Http.GetFromJsonAsync<List<MessageDto>>($"{MessageSettings.GetAllReceivedApiEndpoint}");
+
+                if (Model != null && Model.Count > 0)
+                {
+                    StatusMessage = "Received Messages";
+                }
+                else
+                {
+                    StatusMessage = "No received messages found.";
+                }
+                break;
+        }
+    }
+}

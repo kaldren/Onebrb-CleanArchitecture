@@ -1,0 +1,18 @@
+﻿
+<div class="@CssClass">@Message</div>
+
+@code {
+
+    [Parameter]
+    public string Message { get; set; } = "Loading...";
+    [Parameter]
+    public string CssClass { get; set; } = "alert alert-info";
+
+    protected override void OnInitialized()
+    {
+        if (CssClass == "hidden")
+        {
+            Message = string.Empty;
+        }
+    }
+}

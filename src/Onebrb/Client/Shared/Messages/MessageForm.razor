@@ -1,0 +1,124 @@
+﻿@using Onebrb.Core.Dtos.Messages;
+@using System.Text;
+@using System.Text.Json;
+@using System.Net.Http
+@using Microsoft.AspNetCore.Components.WebAssembly.Hosting
+@using Onebrb.Client.Settings
+@using Microsoft.Extensions.Configuration
+@inject IConfiguration Configuration
+@inject IWebAssemblyHostEnvironment HostEnvironment
+@inject HttpClient Http
+@inject NavigationManager NavigationManager
+
+<div class="message-form">
+    <Notification CssClass="@NotificationCssClass" Message="@ResponseMessage"></Notification>
+
+    <EditForm Model="@viewModel" OnValidSubmit="SendMessage">
+        <DataAnnotationsValidator />
+
+        <h3>Messaging @Recipient</h3>
+
+        <InputText type="hidden" @bind-Value="@Recipient" class="form-control"></InputText>
+        <div class="form-group">
+            Title:
+            <InputText type="text" @bind-Value="@viewModel.Title" class="form-control"></InputText>
+        </div>
+        <div class="form-group">
+            Text:
+            <InputTextArea @bind-Value="@viewModel.Body" class="form-control"></InputTextArea>
+        </div>
+        <button class="btn btn-success" title="Send" disabled="@IsSendBtnDisabled">
+            <i class="fas fa-paper-plane fas--space-right"></i>Send
+        </button>
+        <a class="btn btn-secondary" href="javascript:void(0)" title="Cancel" @onclick="CancelReply">
+            <i class="fas fa-window-close fas--space-right"></i>Cancel
+        </a>
+    </EditForm>
+</div>
+
+
+@code {
+    private MessageDto viewModel = new MessageDto();
+    private HttpResponseMessage response;
+
+    [Parameter]
+    public string Recipient { get; set; }
+
+    public string ResponseMessage { get; set; }
+    public string NotificationCssClass { get; set; }
+    public bool IsSendBtnDisabled { get; set; } = true;
+    public ApiSettings AppSettings { get; private set; }
+
+    [Parameter]
+    public bool ShowReplyForm { get; set; } = true;
+
+    [Parameter]
+    public EventCallback<bool> ShowReplyFormChanged { get; set; }
+
+    private async Task SendMessage()
+    {
+        if (IsSendBtnDisabled)
+        {
+            return;
+        }
+
+        if (viewModel != null && Recipient != null)
+        {
+            var messagesSettings = Configuration.GetSection(nameof(ApiSettings)).Get<ApiSettings>().MessagesSettings;
+
+            viewModel.RecipientUserName = Recipient;
+
+            string jsonString = JsonSerializer.Serialize(viewModel);
+
+            if (!string.IsNullOrEmpty(jsonString))
+            {
+                NotificationCssClass = "alert alert-info";
+                ResponseMessage = $"Sending message, please wait...";
+
+                response = await Http.PostAsync(messagesSettings.CreateApiEndpoint,
+                    new StringContent(jsonString, Encoding.UTF8, "application/json"));
+
+                if (response != null && response.IsSuccessStatusCode)
+                {
+                    IsSendBtnDisabled = true;
+                    ResponseMessage = "The message has been sent.";
+                    NotificationCssClass = "alert alert-success";
+                }
+                else
+                {
+                    IsSendBtnDisabled = true;
+                    ResponseMessage = $"Couldn't send the message, please try again later.";
+                    NotificationCssClass = "alert alert-danger";
+                }
+            }
+        }
+
+    }
+
+    protected override async Task OnInitializedAsync()
+    {
+        var usersSettings = Configuration.GetSection(nameof(ApiSettings)).Get<ApiSettings>().UsersSettings;
+
+        var response = await Http.GetAsync($"{usersSettings.GetUserApiEndpoint}/{Recipient}");
+
+        // The recipient username doesn't exist
+        if (!response.IsSuccessStatusCode)
+        {
+            NotificationCssClass = "alert alert-danger";
+            ResponseMessage = $"{Recipient} user doesn't exist.";
+        }
+        else
+        {
+            IsSendBtnDisabled = false;
+        }
+
+    }
+
+    private Task CancelReply()
+    {
+        ResponseMessage = "Cancelling reply...";
+        ShowReplyForm = false;
+
+        return ShowReplyFormChanged.InvokeAsync(false);
+    }
+}

@@ -23,6 +23,7 @@ using Onebrb.Core.Interfaces.Repos.User;
 using Onebrb.Infrastructure.Repositories.User;
 using Onebrb.Core.Interfaces.Services.User;
 using Onebrb.Services.User;
+using AutoMapper;
 
 namespace Onebrb.Server
 {
@@ -62,6 +63,8 @@ namespace Onebrb.Server
             services.AddRazorPages();
 
             services.AddMediatR(typeof(Startup));
+
+            services.AddAutoMapper(typeof(Startup));
 
             services.AddScoped<IAsyncRepository<Message, int>, EfRepository<Message, int>>();
             services.AddScoped<IAsyncRepository<ApplicationUser, int>, EfRepository<ApplicationUser, int>>();

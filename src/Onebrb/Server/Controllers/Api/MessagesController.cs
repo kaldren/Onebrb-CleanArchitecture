@@ -1,4 +1,5 @@
-﻿using MediatR;
+﻿using AutoMapper;
+using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
@@ -11,6 +12,7 @@ using Onebrb.Core.Interfaces.Services.User;
 using Onebrb.Server.CQRS.Commands.Messages;
 using Onebrb.Server.CQRS.Queries.Messages;
 using Onebrb.Server.Utils.Http;
+using System.Collections.Generic;
 using System.Net;
 using System.Threading.Tasks;
 
@@ -26,14 +28,20 @@ namespace Onebrb.Server.Controllers.Api
         private readonly IMediator _mediator;
         private readonly ILogger<MessagesController> _logger;
         private readonly IUserService<ApplicationUser> _userService;
+        private readonly IMapper _mapper;
         private readonly UserManager<ApplicationUser> _userManager;
 
-        public MessagesController(IMediator mediator, ILogger<MessagesController> logger, UserManager<ApplicationUser> userManager, IUserService<ApplicationUser> userService)
+        public MessagesController(IMediator mediator, 
+            ILogger<MessagesController> logger, 
+            UserManager<ApplicationUser> userManager, 
+            IUserService<ApplicationUser> userService,
+            IMapper mapper)
         {
             _mediator = mediator;
             _logger = logger;
             _userManager = userManager;
             _userService = userService;
+            _mapper = mapper;
         }
 
         /// <summary>
@@ -66,6 +74,65 @@ namespace Onebrb.Server.Controllers.Api
             }
 
             return Ok(result);
+        }
+
+        /// <summary>
+        /// Get all user messages 
+        /// </summary>
+        /// <returns>All of the user's messages</returns>
+        [HttpGet("{show?}")]
+        public async Task<IActionResult> Get([FromQuery] string show)
+        {
+            var currentUser = await _userManager.GetUserAsync(HttpContext.User);
+            List<Message> messages = new List<Message>();
+
+            // Optional parameter
+            if (!string.IsNullOrWhiteSpace(show))
+            {
+                switch (show)
+                {
+                    case "sent":
+                        var result = await _mediator.Send(new GetSentMessagesQuery(currentUser.Id));
+                        messages = result;
+                        break;
+                        //case "received":
+                        //    messages = await _db.Messages
+                        //            .Where(x => x.ApplicationUserMessages
+                        //                .Any(x => x.ApplicationUser.Id == currentUser.Id)
+                        //                && x.RecipientId == currentUser.Id
+                        //                && !x.IsDeletedForRecipient
+                        //                && !x.IsArchivedForRecipient)
+                        //            .ToListAsync();
+                        //    break;
+                        //case "archived":
+                        //    messages = await _db.Messages
+                        //            .Where(x => x.ApplicationUserMessages
+                        //                .Any(x => x.ApplicationUser.Id == currentUser.Id)
+                        //                && x.RecipientId == currentUser.Id
+                        //                && x.IsArchivedForRecipient
+                        //                && !x.IsDeletedForRecipient)
+                        //            .ToListAsync();
+                        //    break;
+                        //default:
+                        //    messages = await _db.Messages
+                        //            .Where(x => x.ApplicationUserMessages
+                        //                .Any(x => x.ApplicationUser.Id == currentUser.Id)
+                        //                && x.AuthorId == currentUser.Id
+                        //                && !x.IsDeletedForAuthor
+                        //                && !x.IsArchivedForAuthor)
+                        //            .ToListAsync();
+                        //    break;
+                }
+            }
+            else
+            {
+                //var result = await _messageRepository.GetAllAsync(currentUser.Id);
+                //messages = result.ToList();
+            }
+
+            var viewModel = _mapper.Map<List<MessageDto>>(messages);
+
+            return Ok(viewModel);
         }
 
         /// <summary>
