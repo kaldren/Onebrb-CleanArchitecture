@@ -82,39 +82,27 @@ namespace Onebrb.Server.Controllers.Api
         /// <param name="show">The type of messages collection (sent, received or archived) to return</param>
         /// <returns>All of the user's sent, received or archived messages</returns>
         /// <response code="200">Returns the requested messages</response>
-        /// <response code="400">The requested is not valid</response>
-        /// <response code="404">The requested message is not found</response>
         [HttpGet("{show?}")]
         [ProducesResponseType(StatusCodes.Status200OK)]
-        [ProducesResponseType(StatusCodes.Status400BadRequest)]
-        [ProducesResponseType(StatusCodes.Status404NotFound)]
-        public async Task<IActionResult> Get([FromQuery] string show)
+        public async Task<IActionResult> Get([FromQuery] string show = "received")
         {
             var currentUser = await _userManager.GetUserAsync(HttpContext.User);
             List<Message> messages = new List<Message>();
 
-            // Optional parameter
-            if (!string.IsNullOrWhiteSpace(show))
+            switch (show)
             {
-                switch (show)
-                {
-                    case "sent":
-                        messages = await _mediator.Send(new GetSentMessagesQuery(currentUser.Id));
-                        break;
-                    case "received":
-                        messages = await _mediator.Send(new GetReceivedMessagesQuery(currentUser.Id));
-                        break;
-                    case "archived":
-                        messages = await _mediator.Send(new GetArchivedMessagesQuery(currentUser.Id));
-                        break;
-                    default:
-                        messages = await _mediator.Send(new GetSentMessagesQuery(currentUser.Id));
-                        break;
-                }
-            }
-            else
-            {
-                messages = await _mediator.Send(new GetReceivedMessagesQuery(currentUser.Id));
+                case "sent":
+                    messages = await _mediator.Send(new GetSentMessagesQuery(currentUser.Id));
+                    break;
+                case "received":
+                    messages = await _mediator.Send(new GetReceivedMessagesQuery(currentUser.Id));
+                    break;
+                case "archived":
+                    messages = await _mediator.Send(new GetArchivedMessagesQuery(currentUser.Id));
+                    break;
+                default:
+                    messages = await _mediator.Send(new GetReceivedMessagesQuery(currentUser.Id));
+                    break;
             }
 
             var viewModel = _mapper.Map<List<MessageDto>>(messages);
