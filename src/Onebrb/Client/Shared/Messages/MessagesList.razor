@@ -62,61 +62,54 @@ else if (Model != null && Model.Count > 0)
 }
 @code {
     public List<MessageDto> Model { get; set; }
+
+    // Settings
     public MessagesSettings MessageSettings { get; set; }
     public UsersSettings UsersSettings { get; set; }
+    public UIMessages UIMessages { get; set; }
+    public UIStyles UIStyles { get; set; }
 
-    public string Recipient { get; set; }
     public bool ShowReplyForm { get; set; }
+    public string Recipient { get; set; }
+    public string CssClass { get; set; }
+    public string StatusMessage { get; set; }
 
-    // CSS classes
-    public string CssClassAlertDanger { get; set; } = "alert alert-danger";
-    public string CssClassAlertInfo { get; set; } = "alert alert-info";
-    public string CssClass { get; set; } = "alert alert-info";
-
-
-    // Text messages
-    public string StatusMessage { get; set; } = "Loading...";
-    public string PleaseWaitText { get; set; } = "Please wait...";
-    public string ReceivedMessagesText { get; set; } = "Received messages";
-    public string ReceivedMessagesEmptyText { get; set; } = "No received messages found.";
-    public string SentMessagesText { get; set; } = "Sent messages";
-    public string SentMessagesEmptyText { get; set; } = "You don't have any sent messages.";
-    public string ArchivedMessagesText { get; set; } = "Archived messages";
-    public string ArchivedMessagesEmptyText { get; set; } = "You don't have any archived messages.";
-    public string DeletingMessageText { get; set; } = "Deleting the message, please wait...";
-    public string DeletingMessageSuccessText { get; set; } = "The message has been deleted.";
-    public string DeletingMessageFailedText { get; set; } = "Couldn't delete the message, please try again.";
 
     protected override async Task OnInitializedAsync()
     {
         MessageSettings = Configuration.GetSection(nameof(ApiSettings)).Get<ApiSettings>().MessagesSettings;
         UsersSettings = Configuration.GetSection(nameof(ApiSettings)).Get<ApiSettings>().UsersSettings;
+        UIMessages = Configuration.GetSection(nameof(UISettings)).Get<UISettings>().UIMessages;
+        UIStyles = Configuration.GetSection(nameof(UISettings)).Get<UISettings>().UIStyles;
+
+        CssClass = UIStyles.AlertInfo;
+        StatusMessage = UIMessages.Loading;
 
         Model = await Http.GetFromJsonAsync<List<MessageDto>>($"{MessageSettings.GetAllApiEndpoint}");
 
         if (Model != null && Model.Count > 0)
         {
-            StatusMessage = ReceivedMessagesText;
+            StatusMessage = UIMessages.ReceivedMessages;
         }
         else
         {
-            StatusMessage = ReceivedMessagesEmptyText;
+            StatusMessage = UIMessages.ReceivedMessagesEmpty;
         }
     }
 
     private async Task DeleteMessage(int id)
     {
-        StatusMessage = DeletingMessageText;
+        StatusMessage = UIMessages.DeletingMessage;
 
         var result = await Http.DeleteAsync($"{MessageSettings.DeleteApiEndpoint}/{id}");
 
         if (!result.IsSuccessStatusCode)
         {
-            StatusMessage = DeletingMessageFailedText;
+            StatusMessage = UIMessages.DeletingMessageFailed;
         }
         else
         {
-            StatusMessage = DeletingMessageSuccessText;
+            StatusMessage = UIMessages.DeletingMessageSuccess;
         }
 
         if (Model != null && Model.Count > 0)
@@ -130,14 +123,14 @@ else if (Model != null && Model.Count > 0)
     {
         Recipient = recipient;
 
-        StatusMessage = PleaseWaitText;
+        StatusMessage = UIMessages.PleaseWait;
 
         var response = await Http.GetAsync($"{UsersSettings.GetUserApiEndpoint}/{recipient}");
 
         if (!response.IsSuccessStatusCode)
         {
-            CssClass = CssClassAlertDanger;
-            StatusMessage = $"{Recipient} user doesn't exist.";
+            CssClass = UIStyles.AlertDanger;
+            StatusMessage = UIMessages.UserNotFound;
         }
         else
         {
@@ -161,11 +154,11 @@ else if (Model != null && Model.Count > 0)
 
                 if (Model != null && Model.Count > 0)
                 {
-                    StatusMessage = SentMessagesText;
+                    StatusMessage = UIMessages.SentMessages;
                 }
                 else
                 {
-                    StatusMessage = SentMessagesEmptyText;
+                    StatusMessage = UIMessages.SentMessagesEmpty;
                 }
                 break;
             case "received":
@@ -173,11 +166,11 @@ else if (Model != null && Model.Count > 0)
 
                 if (Model != null && Model.Count > 0)
                 {
-                    StatusMessage = ReceivedMessagesText;
+                    StatusMessage = UIMessages.ReceivedMessages;
                 }
                 else
                 {
-                    StatusMessage = ReceivedMessagesEmptyText;
+                    StatusMessage = UIMessages.ReceivedMessagesEmpty;
                 }
                 break;
             case "archived":
@@ -185,11 +178,11 @@ else if (Model != null && Model.Count > 0)
 
                 if (Model != null && Model.Count > 0)
                 {
-                    StatusMessage = ArchivedMessagesText;
+                    StatusMessage = UIMessages.ArchivedMessages;
                 }
                 else
                 {
-                    StatusMessage = ArchivedMessagesEmptyText;
+                    StatusMessage = UIMessages.ArchivedMessagesEmpty;
                 }
                 break;
             default:
@@ -197,11 +190,11 @@ else if (Model != null && Model.Count > 0)
 
                 if (Model != null && Model.Count > 0)
                 {
-                    StatusMessage = ReceivedMessagesText;
+                    StatusMessage = UIMessages.ReceivedMessages;
                 }
                 else
                 {
-                    StatusMessage = ReceivedMessagesEmptyText;
+                    StatusMessage = UIMessages.ReceivedMessagesEmpty;
                 }
                 break;
         }

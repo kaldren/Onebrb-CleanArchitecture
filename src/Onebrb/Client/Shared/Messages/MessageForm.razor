@@ -47,7 +47,16 @@
     public string ResponseMessage { get; set; }
     public string NotificationCssClass { get; set; }
     public bool IsSendBtnDisabled { get; set; } = true;
-    public ApiSettings AppSettings { get; private set; }
+
+    // Settings
+    public ApiSettings ApiSettings { get; private set; }
+    public UsersSettings UsersSettings { get; private set; }
+    public MessagesSettings MessageSettings { get; set; }
+    public UIMessages UIMessages { get; set; }
+    public UIStyles UIStyles { get; set; }
+
+
+    // Text messages
 
     [Parameter]
     public bool ShowReplyForm { get; set; } = true;
@@ -64,7 +73,7 @@
 
         if (viewModel != null && Recipient != null)
         {
-            var messagesSettings = Configuration.GetSection(nameof(ApiSettings)).Get<ApiSettings>().MessagesSettings;
+
 
             viewModel.RecipientUserName = Recipient;
 
@@ -72,23 +81,23 @@
 
             if (!string.IsNullOrEmpty(jsonString))
             {
-                NotificationCssClass = "alert alert-info";
-                ResponseMessage = $"Sending message, please wait...";
+                NotificationCssClass = UIStyles.AlertInfo;
+                ResponseMessage = UIMessages.SendingMessage;
 
-                response = await Http.PostAsync(messagesSettings.CreateApiEndpoint,
+                response = await Http.PostAsync(MessageSettings.CreateApiEndpoint,
                     new StringContent(jsonString, Encoding.UTF8, "application/json"));
 
                 if (response != null && response.IsSuccessStatusCode)
                 {
                     IsSendBtnDisabled = true;
-                    ResponseMessage = "The message has been sent.";
-                    NotificationCssClass = "alert alert-success";
+                    ResponseMessage = UIMessages.MessageSent;
+                    NotificationCssClass = UIStyles.AlertSuccess;
                 }
                 else
                 {
                     IsSendBtnDisabled = true;
-                    ResponseMessage = $"Couldn't send the message, please try again later.";
-                    NotificationCssClass = "alert alert-danger";
+                    ResponseMessage = UIMessages.MessageSendingFailed;
+                    NotificationCssClass = UIStyles.AlertDanger;
                 }
             }
         }
@@ -97,15 +106,18 @@
 
     protected override async Task OnInitializedAsync()
     {
-        var usersSettings = Configuration.GetSection(nameof(ApiSettings)).Get<ApiSettings>().UsersSettings;
+        MessageSettings = Configuration.GetSection(nameof(ApiSettings)).Get<ApiSettings>().MessagesSettings;
+        UIMessages = Configuration.GetSection(nameof(UISettings)).Get<UISettings>().UIMessages;
+        UIStyles = Configuration.GetSection(nameof(UISettings)).Get<UISettings>().UIStyles;
+        UsersSettings = Configuration.GetSection(nameof(ApiSettings)).Get<ApiSettings>().UsersSettings;
 
-        var response = await Http.GetAsync($"{usersSettings.GetUserApiEndpoint}/{Recipient}");
+        var response = await Http.GetAsync($"{UsersSettings.GetUserApiEndpoint}/{Recipient}");
 
         // The recipient username doesn't exist
         if (!response.IsSuccessStatusCode)
         {
-            NotificationCssClass = "alert alert-danger";
-            ResponseMessage = $"{Recipient} user doesn't exist.";
+            NotificationCssClass = UIStyles.AlertDanger;
+            ResponseMessage = UIMessages.UserNotFound;
         }
         else
         {
@@ -116,7 +128,7 @@
 
     private Task CancelReply()
     {
-        ResponseMessage = "Cancelling reply...";
+        ResponseMessage = UIMessages.PleaseWait;
         ShowReplyForm = false;
 
         return ShowReplyFormChanged.InvokeAsync(false);
