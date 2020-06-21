@@ -104,15 +104,9 @@ namespace Onebrb.Server.Controllers.Api
                     case "received":
                         messages = await _mediator.Send(new GetReceivedMessagesQuery(currentUser.Id));
                         break;
-                    //case "archived":
-                    //    messages = await _db.Messages
-                    //            .Where(x => x.ApplicationUserMessages
-                    //                .Any(x => x.ApplicationUser.Id == currentUser.Id)
-                    //                && x.RecipientId == currentUser.Id
-                    //                && x.IsArchivedForRecipient
-                    //                && !x.IsDeletedForRecipient)
-                    //            .ToListAsync();
-                    //    break;
+                    case "archived":
+                        messages = await _mediator.Send(new GetArchivedMessagesQuery(currentUser.Id));
+                        break;
                     default:
                         messages = await _mediator.Send(new GetSentMessagesQuery(currentUser.Id));
                         break;

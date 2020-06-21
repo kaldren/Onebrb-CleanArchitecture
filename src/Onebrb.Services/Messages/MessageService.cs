@@ -26,6 +26,21 @@ namespace Onebrb.Services.Messages
             return entity;
         }
 
+        public async Task<IEnumerable<Message>> GetAllArchivedMessages(int userId)
+        {
+            var result = await _messageRepository.FindAsync(x => 
+                                                            x.RecipientId == userId && 
+                                                            x.IsArchivedForRecipient &&
+                                                           !x.IsDeletedForRecipient);
+
+            if (result == null)
+            {
+                return Enumerable.Empty<Message>();
+            }
+
+            return result;
+        }
+
         public async Task<IEnumerable<Message>> GetAllReceivedMessages(int userId)
         {
             var result = await _messageRepository.FindAsync(x => x.RecipientId == userId);
