@@ -7,6 +7,13 @@ namespace Onebrb.Client.Settings
 {
     public class AppSettings
     {
+        public MainSettings MainSettings { get; set; }
+    }
+
+    public class MainSettings
+    {
+        public string AppName { get; set; }
+        public string WelcomeSlogan { get; set; }
         public string BaseUrl { get; set; }
     }
 }

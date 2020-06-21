@@ -1,5 +1,18 @@
 ﻿@page "/"
+@using Microsoft.Extensions.Configuration
+@using Onebrb.Client.Settings
+@inject IConfiguration Configuration
 
-<h1>Hello, world!</h1>
 
-<SurveyPrompt Title="How is Blazor working for you?" />
+<h1>@MainSettings.AppName</h1>
+<p>@MainSettings.WelcomeSlogan</p>
+
+@code { 
+
+    public MainSettings MainSettings { get; set; }
+
+    protected override void OnInitialized()
+    {
+        MainSettings = Configuration.GetSection(nameof(AppSettings)).Get<AppSettings>().MainSettings;
+    }
+}
