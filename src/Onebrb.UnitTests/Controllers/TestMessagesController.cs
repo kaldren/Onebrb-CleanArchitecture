@@ -58,7 +58,7 @@ namespace Onebrb.UnitTests.Controllers
             // Arrange
             int messageId = -999;
             var mockMediator = new Mock<IMediator>();
-            var controller = new MessagesController(mockMediator.Object, null, null, null);
+            var controller = new MessagesController(mockMediator.Object, null, null, null, null);
             int expectedStatusCode = (int)HttpStatusCode.NotFound;
 
             // Act
