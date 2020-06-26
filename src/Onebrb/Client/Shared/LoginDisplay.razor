@@ -6,8 +6,22 @@
 
 <AuthorizeView>
     <Authorized>
-        <a href="authentication/profile">Hello, @context.User.Identity.Name!</a>
-        <button class="nav-link btn btn-link" @onclick="BeginSignOut">Log out</button>
+        <a class="icon-link" href="authentication/profile">
+            <i class="fas fa-user"></i>
+            <span>
+                @context.User.Identity.Name
+            </span>
+        </a>
+        <a class="icon-link" href="messages">
+            <i class="fas fa-envelope"></i>
+            <span>
+                Messages
+            </span>
+        </a>
+        <button class="nav-link btn btn-link icon-link btn-logout" @onclick="BeginSignOut">
+            <i class="fas fa-door-open"></i>
+            <span>Log out</span>
+        </button>
     </Authorized>
     <NotAuthorized>
         <a href="authentication/register">Register</a>
