@@ -139,7 +139,9 @@ namespace Onebrb.Server.Controllers.Api
             }
 
             entity.AuthorId = currentUser.Id;
+            entity.AuthorUserName = currentUser.UserName;
             entity.RecipientId = recipient.Id;
+            entity.RecipientUserName = recipient.UserName;
 
             var result = await _mediator.Send(new CreateMessageCommand(entity));
 
