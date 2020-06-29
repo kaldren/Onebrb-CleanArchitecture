@@ -66,7 +66,7 @@ namespace Onebrb.Server.Controllers.Api
 
             if (result == null)
             {
-#if (!TESTING)
+#if !TESTING
                 _logger.LogWarning($"Message with id {id} doesn't exist.");
 #endif
                 return NotFound(new HttpResponseHandler
