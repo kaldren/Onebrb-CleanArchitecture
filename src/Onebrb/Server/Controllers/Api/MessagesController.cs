@@ -158,7 +158,7 @@ namespace Onebrb.Server.Controllers.Api
         /// Deletes a message
         /// </summary>
         /// <param name="id">The message id</param>
-        /// <returns></returns>
+        /// <returns>The deleted message</returns>
         [HttpDelete("{id}")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
