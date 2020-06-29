@@ -153,7 +153,7 @@ namespace Onebrb.Server.Controllers.Api
                 });
             }
 
-            return null;
+            return Ok(result);
         }
 
 

@@ -35,7 +35,7 @@ else if (Model != null && Model.Count > 0)
             @for (int i = 0; i < Model.Count; i++)
             {
                 int messageId = @Model[i].Id;
-                string recipient = @Model[i].RecipientUserName;
+                string recipient = @Model[i].AuthorUserName;
 
                 <tr>
                     <th scope="row">@(i+1)</th>
