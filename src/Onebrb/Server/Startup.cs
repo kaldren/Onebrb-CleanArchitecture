@@ -26,6 +26,7 @@ using Onebrb.Services.User;
 using AutoMapper;
 using Microsoft.AspNetCore.ResponseCompression;
 using Onebrb.Server.Hubs;
+using System.Linq;
 
 namespace Onebrb.Server
 {
