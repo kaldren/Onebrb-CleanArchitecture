@@ -24,6 +24,8 @@ using Onebrb.Infrastructure.Repositories.User;
 using Onebrb.Core.Interfaces.Services.User;
 using Onebrb.Services.User;
 using AutoMapper;
+using Microsoft.AspNetCore.ResponseCompression;
+using Onebrb.Server.Hubs;
 
 namespace Onebrb.Server
 {
@@ -61,6 +63,13 @@ namespace Onebrb.Server
 
             services.AddControllersWithViews();
             services.AddRazorPages();
+
+            services.AddSignalR();
+            services.AddResponseCompression(opts =>
+            {
+                opts.MimeTypes = ResponseCompressionDefaults.MimeTypes.Concat(
+                    new[] { "application/octet-stream" });
+            });
 
             services.AddMediatR(typeof(Startup));
 
@@ -106,6 +115,8 @@ namespace Onebrb.Server
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
         {
+            app.UseResponseCompression();
+
             if (env.IsDevelopment())
             {
                 app.UseDeveloperExceptionPage();
@@ -143,6 +154,7 @@ namespace Onebrb.Server
             {
                 endpoints.MapRazorPages();
                 endpoints.MapControllers();
+                endpoints.MapHub<ChatHub>("/chathub");
                 endpoints.MapFallbackToFile("index.html");
             });
         }
