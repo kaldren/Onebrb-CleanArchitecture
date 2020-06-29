@@ -152,5 +152,33 @@ namespace Onebrb.Server.Controllers.Api
 
             return null;
         }
+
+
+        /// <summary>
+        /// Deletes a message
+        /// </summary>
+        /// <param name="id">The message id</param>
+        /// <returns></returns>
+        [HttpDelete("{id}")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        public async Task<IActionResult> Delete(int id)
+        {
+            var currentUser = await _userManager.GetUserAsync(HttpContext.User);
+            var result = await _mediator.Send(new DeleteMessageCommand(id, currentUser.Id));
+
+            if (result == null)
+            {
+                _logger.LogWarning($"Unable to delete message with id {id}.");
+
+                return BadRequest(new HttpResponseHandler
+                {
+                    Message = $"Unable to delete message with id {id}.",
+                    StatusCode = HttpStatusCode.BadRequest,
+                });
+            }
+
+            return Ok(result);
+        }
     }
 }

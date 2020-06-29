@@ -26,6 +26,21 @@ namespace Onebrb.Services.Messages
             return entity;
         }
 
+        public async Task<Message> DeleteMessage(int id, int userId)
+        {
+            var result = await _messageRepository.FindSingleAsync(x => x.Id == id && x.AuthorId == userId || x.RecipientId == userId);
+
+            if (result == null)
+            {
+                return null;
+            }
+
+            _messageRepository.Remove(result);
+            await _messageRepository.SaveChangesAsync();
+
+            return result;
+        }
+
         public async Task<IEnumerable<Message>> GetAllArchivedMessages(int userId)
         {
             var result = await _messageRepository.FindAsync(x => 

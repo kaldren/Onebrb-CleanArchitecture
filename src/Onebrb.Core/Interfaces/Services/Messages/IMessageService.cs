@@ -10,6 +10,7 @@ namespace Onebrb.Core.Interfaces.Services.Messages
     {
         Task<TEntity> GetMessageById(int id);
         Task<TEntity> CreateMessage(Message entity);
+        Task<TEntity> DeleteMessage(int id, int userId);
         Task<IEnumerable<TEntity>> GetAllSentMessages(int userId);
         Task<IEnumerable<TEntity>> GetAllReceivedMessages(int userId);
         Task<IEnumerable<TEntity>> GetAllArchivedMessages(int userId);
