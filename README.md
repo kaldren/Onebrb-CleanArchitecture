@@ -4,6 +4,7 @@ of learning as much as I can about the new ASP.NET Core.
 
 Parts
 - Api (Swagger / OpenAPI included)
+- SignalR
 - Client (Blazor WebAssembly)
 - Core (Entities, Interfaces)
 - Infrastructure (Data, Repos)
