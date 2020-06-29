@@ -1,4 +1,5 @@
-﻿using AutoMapper;
+﻿#define TESTING
+using AutoMapper;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
@@ -65,7 +66,9 @@ namespace Onebrb.Server.Controllers.Api
 
             if (result == null)
             {
+#if (!TESTING)
                 _logger.LogWarning($"Message with id {id} doesn't exist.");
+#endif
                 return NotFound(new HttpResponseHandler
                 {
                     Message = $"Message with id {id} doesn't exist.",
