@@ -6,6 +6,7 @@ using Moq;
 using Onebrb.Core.Entities;
 using Onebrb.Core.Interfaces.Services.Messages;
 using Onebrb.Server.Controllers.Api;
+using Onebrb.Server.CQRS.Commands.Messages;
 using Onebrb.Server.CQRS.Handlers.Messages;
 using Onebrb.Server.CQRS.Queries.Messages;
 using Onebrb.Server.Utils.Http;
@@ -67,6 +68,40 @@ namespace Onebrb.UnitTests.Controllers
             //Assert
             var result = Assert.IsType<NotFoundObjectResult>(response);
             Assert.Equal(expectedStatusCode, result.StatusCode);
+        }
+
+        [Fact]
+        public async Task DeleteMessageById_MessageIdExists_DeleteMessage()
+        {
+            // Arrange
+            int messageId = 1;
+            int userId = 1;
+            int expectedId = 1;
+            var mockService = new Mock<IMessageService<Message>>();
+            var expectedMessage = new Message
+            {
+                Id = messageId,
+                AuthorId = 1,
+                AuthorUserName = "kaldren",
+                Body = "Test body",
+                DateSent = DateTime.UtcNow,
+                IsArchivedForAuthor = false,
+                IsArchivedForRecipient = false,
+                IsDeletedForAuthor = false,
+                IsDeletedForRecipient = false,
+                RecipientId = 2,
+                RecipientUserName = "johndoe",
+                Title = "Test title"
+            };
+            mockService.Setup(service => service.DeleteMessage(messageId, userId)).ReturnsAsync(expectedMessage);
+            var handler = new DeleteMessageHandler(mockService.Object);
+
+            // Act
+            var actualResult = await handler.Handle(new DeleteMessageCommand(messageId, userId), CancellationToken.None);
+
+            // Assert 
+            Assert.IsType<Message>(actualResult);
+            Assert.Equal(expectedId, actualResult.Id);
         }
     }
 }
