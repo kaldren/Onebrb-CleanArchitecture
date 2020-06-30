@@ -11,7 +11,7 @@
     <ul class="list-group">
         @for (int i = 0; i < Messages.Count; i++)
         {
-            <li class="list-group-item">@Messages[i].Body (@Messages[i].AuthorUserName)</li>
+            <li class="list-group-item">@Messages[i].AuthorUserName @Messages[i].Body</li>
         }
     </ul>
 }

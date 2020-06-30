@@ -10,9 +10,7 @@
 @inject IWebAssemblyHostEnvironment HostEnvironment
 @inject HttpClient Http
 @inject NavigationManager NavigationManager
-@implements IDisposable
 
-@*Existing conversations*@
 <IndividualConversation ConversationWith="@Recipient"></IndividualConversation>
 
 <div class="message-form">
@@ -146,9 +144,5 @@
         ShowReplyForm = false;
 
         return ShowReplyFormChanged.InvokeAsync(false);
-    }
-    public void Dispose()
-    {
-        _ = hubConnection.DisposeAsync();
     }
 }
