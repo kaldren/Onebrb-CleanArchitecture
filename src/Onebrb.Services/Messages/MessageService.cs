@@ -83,6 +83,20 @@ namespace Onebrb.Services.Messages
             return result;
         }
 
+        public async Task<IEnumerable<Message>> GetConversationWithUser(int currentUserId, int otherUserId)
+        {
+            var result = await _messageRepository.FindAsync(x =>
+                                                            x.RecipientId == currentUserId &&
+                                                            x.AuthorId == otherUserId);
+
+            if (result == null)
+            {
+                return Enumerable.Empty<Message>();
+            }
+
+            return result;
+        }
+
         public async Task<Message> GetMessageById(int id)
         {
             return await _messageRepository.GetAsync(id);

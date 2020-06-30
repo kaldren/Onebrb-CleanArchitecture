@@ -19,5 +19,6 @@
     public class UsersSettings
     {
         public string GetUserApiEndpoint { get; set; }
+        public string GetCurrentUserApiEndpoint { get; set; }
     }
 }

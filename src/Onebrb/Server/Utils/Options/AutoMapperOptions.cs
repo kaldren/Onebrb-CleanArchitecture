@@ -1,5 +1,6 @@
 ﻿using AutoMapper;
 using Onebrb.Core.Dtos.Messages;
+using Onebrb.Core.Dtos.User;
 using Onebrb.Core.Entities;
 using System;
 using System.Collections.Generic;
@@ -13,6 +14,9 @@ namespace Onebrb.Server.Utils.Options
         public AutoMapperOptions()
         {
             CreateMap<Message, MessageDto>()
+                .ReverseMap();
+            CreateMap<ApplicationUser, UserDto>()
+                .ForMember(x => x.UserName, opt => opt.MapFrom(src => src.UserName))
                 .ReverseMap();
         }
     }

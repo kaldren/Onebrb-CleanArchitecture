@@ -75,6 +75,8 @@
             StateHasChanged();
         });
 
+        await hubConnection.StartAsync();
+
         var response = await Http.GetAsync($"{UsersSettings.GetUserApiEndpoint}/{ConversationWith}");
 
         // The recipient username doesn't exist

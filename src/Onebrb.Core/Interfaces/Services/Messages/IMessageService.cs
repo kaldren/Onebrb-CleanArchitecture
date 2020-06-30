@@ -14,5 +14,6 @@ namespace Onebrb.Core.Interfaces.Services.Messages
         Task<IEnumerable<TEntity>> GetAllSentMessages(int userId);
         Task<IEnumerable<TEntity>> GetAllReceivedMessages(int userId);
         Task<IEnumerable<TEntity>> GetAllArchivedMessages(int userId);
+        Task<IEnumerable<TEntity>> GetConversationWithUser(int currentUserId, int otherUserId);
     }
 }

@@ -6,6 +6,7 @@
 @using Microsoft.AspNetCore.SignalR.Client
 @using Onebrb.Core.Dtos.Messages;
 @using Onebrb.Client.Settings
+@using Onebrb.Core.Dtos.User; 
 @inject IConfiguration Configuration
 @inject IWebAssemblyHostEnvironment HostEnvironment
 @inject HttpClient Http
@@ -47,7 +48,7 @@
     [Parameter]
     public string Recipient { get; set; }
 
-    public string LoggedInuser { get; set; }
+    public UserDto CurrentUser { get; set; }
 
     public string ResponseMessage { get; set; }
     public string NotificationCssClass { get; set; }
@@ -105,7 +106,7 @@
 
                     await hubConnection.StartAsync();
 
-                    await hubConnection.SendAsync("SendMessage", viewModel.Title, viewModel.Body);
+                    await hubConnection.SendAsync("SendMessage", CurrentUser.UserName, viewModel.Body);
                 }
                 else
                 {
@@ -125,6 +126,7 @@
         UIStyles = Configuration.GetSection(nameof(UISettings)).Get<UISettings>().UIStyles;
         UsersSettings = Configuration.GetSection(nameof(ApiSettings)).Get<ApiSettings>().UsersSettings;
 
+        var currentUserResponse = await Http.GetAsync($"{UsersSettings.GetCurrentUserApiEndpoint}");
         var response = await Http.GetAsync($"{UsersSettings.GetUserApiEndpoint}/{Recipient}");
 
         // The recipient username doesn't exist
@@ -136,6 +138,16 @@
         else
         {
             IsSendBtnDisabled = false;
+            if (currentUserResponse.IsSuccessStatusCode)
+            {
+                var jsonString = await currentUserResponse.Content.ReadAsStringAsync();
+                CurrentUser = JsonSerializer.Deserialize<UserDto>(jsonString, 
+                    new JsonSerializerOptions
+                    {
+                        PropertyNameCaseInsensitive = true
+                    });
+            }
+
         }
 
     }
