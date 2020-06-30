@@ -3,11 +3,9 @@
 @using Microsoft.Extensions.Configuration
 @using System.Net.Http
 @using System.Collections.Generic
-@using Microsoft.AspNetCore.SignalR.Client
 @inject IConfiguration Configuration
 @inject HttpClient Http
 @inject NavigationManager NavigationManager
-@implements IDisposable
 
 <Notification CssClass="@CssClass" Message="@StatusMessage" />
 
@@ -16,13 +14,6 @@
     <button class="btn btn-primary" @onclick="@(e => OnMessageOptionsButtonClick("sent"))">Sent</button>
     <button class="btn btn-primary" @onclick="@(e => OnMessageOptionsButtonClick("archived"))">Archived</button>
 </div>
-
-<ul id="messagesList">
-    @foreach (var message in messages)
-    {
-        <li>@message</li>
-    }
-</ul>
 
 @if (ShowReplyForm)
 {
@@ -84,7 +75,6 @@ else if (Model?.Count > 0)
     public string CssClass { get; set; }
     public string StatusMessage { get; set; }
 
-    private HubConnection hubConnection;
     private List<string> messages = new List<string>();
 
 
@@ -97,20 +87,6 @@ else if (Model?.Count > 0)
 
         CssClass = UIStyles.AlertInfo;
         StatusMessage = UIMessages.Loading;
-
-        // SignalR
-        hubConnection = new HubConnectionBuilder()
-                                .WithUrl(NavigationManager.ToAbsoluteUri("/chathub"))
-                                .Build();
-
-        hubConnection.On<string, string>("ReceiveMessage", (user, message) =>
-        {
-            var encodedMsg = $"{user}: {message}";
-            messages.Add(encodedMsg);
-            StateHasChanged();
-        });
-
-        await hubConnection.StartAsync();
 
         Model = await Http.GetFromJsonAsync<List<MessageDto>>($"{MessageSettings.GetAllApiEndpoint}");
 
@@ -229,10 +205,5 @@ else if (Model?.Count > 0)
         }
 
         Model = Model.OrderByDescending(x => x.DateSent).GroupBy(x => x.AuthorId).Select(x => x.First()).ToList();
-    }
-
-    public void Dispose()
-    {
-        _ = hubConnection.DisposeAsync();
     }
 }

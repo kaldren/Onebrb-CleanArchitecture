@@ -361,3 +361,18 @@ app {
         margin: 10px 5px;
     }
 /*#endregion Messages*/
+
+/*#region Individual Conversation*/
+.individual-conversation {
+    list-style: none;
+    background: #f4f4f4;
+    overflow-y: scroll;
+    max-height: 200px;
+    padding: 1rem;
+}
+.individual-conversation-item {}
+.individual-conversation-author {
+    color: #0366d6;
+}
+.individual-conversation-message {font-size: 0.9rem}
+/*#endregion Individual Conversation*/

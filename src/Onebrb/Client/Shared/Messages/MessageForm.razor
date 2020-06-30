@@ -1,11 +1,11 @@
-﻿@using Onebrb.Core.Dtos.Messages;
-@using System.Text;
+﻿@using System.Text;
 @using System.Text.Json;
 @using System.Net.Http
 @using Microsoft.AspNetCore.Components.WebAssembly.Hosting
-@using Onebrb.Client.Settings
 @using Microsoft.Extensions.Configuration
 @using Microsoft.AspNetCore.SignalR.Client
+@using Onebrb.Core.Dtos.Messages;
+@using Onebrb.Client.Settings
 @inject IConfiguration Configuration
 @inject IWebAssemblyHostEnvironment HostEnvironment
 @inject HttpClient Http
@@ -46,6 +46,8 @@
 
     [Parameter]
     public string Recipient { get; set; }
+
+    public string LoggedInuser { get; set; }
 
     public string ResponseMessage { get; set; }
     public string NotificationCssClass { get; set; }

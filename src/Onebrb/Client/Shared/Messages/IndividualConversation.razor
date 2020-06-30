@@ -1,23 +1,39 @@
 ﻿@using Onebrb.Core.Dtos.Messages
 @using Onebrb.Client.Settings
 @using Microsoft.Extensions.Configuration
+@using Microsoft.AspNetCore.SignalR.Client
 @inject IConfiguration Configuration
 @inject HttpClient Http
+@inject NavigationManager NavigationManager
+@implements IDisposable
 
 <Notification CssClass="@NotificationCssClass" Message="@ResponseMessage"></Notification>
 
 @if (Messages?.Count > 0)
 {
-    <ul class="list-group">
-        @for (int i = 0; i < Messages.Count; i++)
-        {
-            <li class="list-group-item">@Messages[i].AuthorUserName @Messages[i].Body</li>
-        }
-    </ul>
+<ul class="individual-conversation">
+    @for (int i = 0; i < Messages.Count; i++)
+    {
+        <li class="individual-conversation-item">
+            <span class="individual-conversation-author">@Messages[i].AuthorUserName</span>
+            <span class="individual-conversation-message">@Messages[i].Body</span>
+        </li>
+    }
+    @foreach (var message in newMessages)
+    {
+        <li class="individual-conversation-item">
+            <span class="individual-conversation-author">@message.Author</span>
+            <span class="individual-conversation-message">@message.Body</span>
+        </li>
+    }
+</ul>
 }
 
 
 @code {
+
+    private HubConnection hubConnection;
+    private List<MessageStruct> newMessages = new List<MessageStruct>();
 
     // Settings
     public ApiSettings ApiSettings { get; private set; }
@@ -44,6 +60,21 @@
 
         StatusMessage = UIMessages.Loading;
 
+        hubConnection = new HubConnectionBuilder()
+                            .WithUrl(NavigationManager.ToAbsoluteUri("/chathub"))
+                            .Build();
+
+        hubConnection.On<string, string>("ReceiveMessage", (user, message) =>
+        {
+            newMessages.Add(new MessageStruct
+            {
+                Author = user,
+                Body = message
+            });
+
+            StateHasChanged();
+        });
+
         var response = await Http.GetAsync($"{UsersSettings.GetUserApiEndpoint}/{ConversationWith}");
 
         // The recipient username doesn't exist
@@ -67,5 +98,16 @@
                 StatusMessage = UIMessages.ReceivedMessagesEmpty;
             }
         }
+    }
+
+    public void Dispose()
+    {
+        _ = hubConnection.DisposeAsync();
+    }
+
+    struct MessageStruct
+    {
+        public string Author { get; set; }
+        public string Body { get; set; }
     }
 }
