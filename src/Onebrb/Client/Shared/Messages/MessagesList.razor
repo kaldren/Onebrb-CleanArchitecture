@@ -28,7 +28,7 @@
 {
     <MessageForm Recipient="@Recipient" @bind-ShowReplyForm="ShowReplyForm"></MessageForm>
 }
-else if (Model != null && Model.Count > 0)
+else if (Model?.Count > 0)
 {
     <table class="table table-striped">
         <thead>

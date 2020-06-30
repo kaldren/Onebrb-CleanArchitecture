@@ -12,6 +12,9 @@
 @inject NavigationManager NavigationManager
 @implements IDisposable
 
+@*Existing conversations*@
+<IndividualConversation ConversationWith="@Recipient"></IndividualConversation>
+
 <div class="message-form">
     <Notification CssClass="@NotificationCssClass" Message="@ResponseMessage"></Notification>
 

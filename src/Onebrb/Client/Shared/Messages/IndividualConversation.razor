@@ -1,0 +1,71 @@
+﻿@using Onebrb.Core.Dtos.Messages
+@using Onebrb.Client.Settings
+@using Microsoft.Extensions.Configuration
+@inject IConfiguration Configuration
+@inject HttpClient Http
+
+<Notification CssClass="@NotificationCssClass" Message="@ResponseMessage"></Notification>
+
+@if (Messages?.Count > 0)
+{
+    <ul class="list-group">
+        @for (int i = 0; i < Messages.Count; i++)
+        {
+            <li class="list-group-item">@Messages[i].Body (@Messages[i].AuthorUserName)</li>
+        }
+    </ul>
+}
+
+
+@code {
+
+    // Settings
+    public ApiSettings ApiSettings { get; private set; }
+    public UsersSettings UsersSettings { get; private set; }
+    public MessagesSettings MessageSettings { get; set; }
+    public UIMessages UIMessages { get; set; }
+    public UIStyles UIStyles { get; set; }
+
+    public List<MessageDto> Messages { get; set; }
+
+    [Parameter]
+    public string ConversationWith { get; set; }
+
+    public string ResponseMessage { get; set; }
+    public string NotificationCssClass { get; set; }
+    public string StatusMessage { get; set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        MessageSettings = Configuration.GetSection(nameof(ApiSettings)).Get<ApiSettings>().MessagesSettings;
+        UIMessages = Configuration.GetSection(nameof(UISettings)).Get<UISettings>().UIMessages;
+        UIStyles = Configuration.GetSection(nameof(UISettings)).Get<UISettings>().UIStyles;
+        UsersSettings = Configuration.GetSection(nameof(ApiSettings)).Get<ApiSettings>().UsersSettings;
+
+        StatusMessage = UIMessages.Loading;
+
+        var response = await Http.GetAsync($"{UsersSettings.GetUserApiEndpoint}/{ConversationWith}");
+
+        // The recipient username doesn't exist
+        if (!response.IsSuccessStatusCode)
+        {
+            NotificationCssClass = UIStyles.AlertDanger;
+            ResponseMessage = UIMessages.UserNotFound;
+        }
+        else
+        {
+            // Check for conversation
+            Messages = await Http.GetFromJsonAsync<List<MessageDto>>($"{MessageSettings.GetAllApiEndpoint}");
+
+            if (Messages != null && Messages.Count > 0)
+            {
+                StatusMessage = UIMessages.ReceivedMessages;
+                // Show only the last message from a given user
+            }
+            else
+            {
+                StatusMessage = UIMessages.ReceivedMessagesEmpty;
+            }
+        }
+    }
+}
