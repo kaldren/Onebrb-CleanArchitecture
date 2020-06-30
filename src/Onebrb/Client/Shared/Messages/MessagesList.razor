@@ -119,6 +119,8 @@ else if (Model != null && Model.Count > 0)
         if (Model != null && Model.Count > 0)
         {
             StatusMessage = UIMessages.ReceivedMessages;
+            // Show only the last message from a given user
+            Model = Model.OrderByDescending(x => x.DateSent).GroupBy(x => x.AuthorId).Select(x => x.First()).ToList();
         }
         else
         {
