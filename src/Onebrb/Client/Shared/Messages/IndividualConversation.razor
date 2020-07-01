@@ -102,7 +102,7 @@
             // Check for conversation
                 Messages = await Http.GetFromJsonAsync<List<MessageDto>>($"api/messages?type=conversation&with={OtherUser?.Id}");
 
-            if (Messages != null && Messages.Count > 0)
+            if (Messages?.Count > 0)
             {
                 StatusMessage = UIMessages.ReceivedMessages;
                 // Show only the last message from a given user
