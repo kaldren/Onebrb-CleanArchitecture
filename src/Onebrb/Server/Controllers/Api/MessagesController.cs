@@ -83,12 +83,13 @@ namespace Onebrb.Server.Controllers.Api
         /// Gets all received, sent or archived messages
         /// </summary>
         /// <param name="type">Messages type (sent, received or archived)</param>
+        /// <param name="with">The user with whom we have a conversation</param>
         /// <returns>All of the user's sent, received or archived messages</returns>
         /// <response code="200">Returns the requested messages</response>
         [HttpGet]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
-        public async Task<IActionResult> GetAll([FromQuery] string type = "received")
+        public async Task<IActionResult> GetAll([FromQuery] string type = "received", int with = -1)
         {
             var currentUser = await _userManager.GetUserAsync(HttpContext.User);
             List<Message> messages = new List<Message>();
@@ -103,6 +104,9 @@ namespace Onebrb.Server.Controllers.Api
                     break;
                 case "archived":
                     messages = await _mediator.Send(new GetArchivedMessagesQuery(currentUser.Id));
+                    break;
+                case "conversation":
+                    messages = await _mediator.Send(new GetConversationMessagesQuery(currentUser.Id, with));
                     break;
                 default:
                     messages = await _mediator.Send(new GetReceivedMessagesQuery(currentUser.Id));

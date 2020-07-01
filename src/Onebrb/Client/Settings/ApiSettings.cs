@@ -14,6 +14,7 @@
         public string GetAllReceivedApiEndpoint { get; set; }
         public string GetAllSentApiEndpoint { get; set; }
         public string GetAllArchivedApiEndpoint { get; set; }
+        public string GetConversationApiEndpoint { get; set; }
     }
 
     public class UsersSettings

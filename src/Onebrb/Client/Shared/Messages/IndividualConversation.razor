@@ -9,6 +9,10 @@
 
 <Notification CssClass="@NotificationCssClass" Message="@ResponseMessage"></Notification>
 
+@{ 
+    <p>Your conversation with @{ConversationWith}</p>
+}
+
 @if (Messages?.Count > 0)
 {
 <ul class="individual-conversation">
@@ -88,7 +92,7 @@
         else
         {
             // Check for conversation
-            Messages = await Http.GetFromJsonAsync<List<MessageDto>>($"{MessageSettings.GetAllApiEndpoint}");
+            Messages = await Http.GetFromJsonAsync<List<MessageDto>>($"api/messages?type=conversation&with=1");
 
             if (Messages != null && Messages.Count > 0)
             {

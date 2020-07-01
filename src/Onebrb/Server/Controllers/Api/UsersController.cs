@@ -27,8 +27,22 @@ namespace Onebrb.Server.Controllers.Api
             _mapper = mapper;
         }
 
+        ///// <summary>
+        ///// Gets user by id
+        ///// </summary>
+        ///// <param name="userId">The id of the user</param>
+        ///// <returns>The user or null</returns>
+        //public async Task<IActionResult> Get(string userId)
+        //{
+        //}
+
+
+        /// <summary>
+        /// Gets the currently logged in user
+        /// </summary>
+        /// <returns></returns>
         [HttpGet("current")]
-        public async Task<IActionResult> GetCurrentUserUserName()
+        public async Task<IActionResult> GetCurrentUser()
         {
             var currentUser = await _userManager.GetUserAsync(HttpContext.User);
 
