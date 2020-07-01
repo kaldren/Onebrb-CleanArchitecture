@@ -13,6 +13,7 @@ using Onebrb.Core.Interfaces.Services.User;
 using Onebrb.Server.CQRS.Commands.Messages;
 using Onebrb.Server.CQRS.Queries.Messages;
 using Onebrb.Server.Utils.Http;
+using System;
 using System.Collections.Generic;
 using System.Net;
 using System.Threading.Tasks;
@@ -134,6 +135,15 @@ namespace Onebrb.Server.Controllers.Api
             var currentUser = await _userManager.GetUserAsync(HttpContext.User);
             var recipient = await _userService.GetUserByUserNameAsync(entity.RecipientUserName);
 
+            if (currentUser == recipient)
+            {
+                return BadRequest(new HttpResponseHandler
+                {
+                    Message = $"You can't send messages to yourself.",
+                    StatusCode = HttpStatusCode.BadRequest
+                }); ;
+            }
+
             if (recipient == null)
             {
                 return BadRequest(new HttpResponseHandler
@@ -145,8 +155,7 @@ namespace Onebrb.Server.Controllers.Api
 
             entity.AuthorId = currentUser.Id;
             entity.AuthorUserName = currentUser.UserName;
-            entity.RecipientId = recipient.Id;
-            entity.RecipientUserName = recipient.UserName;
+            entity.DateSent = DateTime.UtcNow;
 
             var result = await _mediator.Send(new CreateMessageCommand(entity));
 

@@ -27,6 +27,7 @@ namespace Onebrb.Client.Settings
         public string DeletingMessage { get; set; }
         public string DeletingMessageSuccess { get; set; }
         public string DeletingMessageFailed { get; set; }
+        public string GenericError { get; set; }
         public string UserNotFound { get; set; }
     }
 
