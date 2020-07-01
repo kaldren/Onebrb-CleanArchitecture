@@ -15,12 +15,11 @@
 <IndividualConversation ConversationWith="@Recipient"></IndividualConversation>
 
 <div class="message-form">
-    <Notification CssClass="@NotificationCssClass" Message="@ResponseMessage"></Notification>
 
     <EditForm Model="@messageDto" OnValidSubmit="SendMessage">
         <DataAnnotationsValidator />
 
-        <h3>Messaging @Recipient</h3>
+        <h3>Messaging @RecipientUser?.UserName</h3>
 
         <InputText type="hidden" @bind-Value="@Recipient" class="form-control"></InputText>
         <div class="form-group">
@@ -99,7 +98,6 @@
 
                 if (response != null && response.IsSuccessStatusCode)
                 {
-                    IsSendBtnDisabled = true;
                     ResponseMessage = UIMessages.MessageSent;
                     NotificationCssClass = UIStyles.AlertSuccess;
 
@@ -131,10 +129,16 @@
         UsersSettings = Configuration.GetSection(nameof(ApiSettings)).Get<ApiSettings>().UsersSettings;
 
         var currentUserResponse = await Http.GetAsync($"{UsersSettings.GetCurrentUserApiEndpoint}");
-        var recipientResponse = await Http.GetAsync($"{UsersSettings.GetUserApiEndpoint}/{Recipient}");
+        var recipientUserResponse = await Http.GetAsync($"{UsersSettings.GetUserApiEndpoint}/{Recipient}");
 
+        // Somehow current user is invalid
+        if (!currentUserResponse.IsSuccessStatusCode)
+        {
+            NotificationCssClass = UIStyles.AlertDanger;
+            ResponseMessage = UIMessages.GenericError;
+        }
         // The recipient username doesn't exist
-        if (!recipientResponse.IsSuccessStatusCode)
+        else if (!recipientUserResponse.IsSuccessStatusCode)
         {
             NotificationCssClass = UIStyles.AlertDanger;
             ResponseMessage = UIMessages.UserNotFound;
@@ -142,29 +146,22 @@
         else
         {
             IsSendBtnDisabled = false;
-            if (currentUserResponse.IsSuccessStatusCode)
-            {
-                // Get logged in user
-                var jsonString = await currentUserResponse.Content.ReadAsStringAsync();
-                CurrentUser = JsonSerializer.Deserialize<UserDto>(jsonString,
-                    new JsonSerializerOptions
-                    {
-                        PropertyNameCaseInsensitive = true
-                    });
 
-                // Get recipient
-                jsonString = await currentUserResponse.Content.ReadAsStringAsync();
-                RecipientUser = JsonSerializer.Deserialize<UserDto>(jsonString,
+            // Get logged in user
+            var jsonString = await currentUserResponse.Content.ReadAsStringAsync();
+            CurrentUser = JsonSerializer.Deserialize<UserDto>(jsonString,
                 new JsonSerializerOptions
                 {
                     PropertyNameCaseInsensitive = true
                 });
-            }
-            else
-            {
-                ResponseMessage = UIMessages.GenericError;
-            }
 
+            // Get recipient
+            jsonString = await recipientUserResponse.Content.ReadAsStringAsync();
+            RecipientUser = JsonSerializer.Deserialize<UserDto>(jsonString,
+            new JsonSerializerOptions
+            {
+                PropertyNameCaseInsensitive = true
+            });
         }
 
     }

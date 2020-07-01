@@ -31,6 +31,7 @@ else if (Model?.Count > 0)
                 <th scope="col">Text</th>
                 <th scope="col">Date Sent</th>
                 <th scope="col">From</th>
+                <th scope="col">To</th>
                 <th scope="col"></th>
             </tr>
         </thead>
@@ -39,23 +40,24 @@ else if (Model?.Count > 0)
             {
                 MessageDto messageDto = @Model[i];
 
-                <tr>
-                    <th scope="row">@(i+1)</th>
-                    <td>@Model[i].Title</td>
-                    <td>@Model[i].Body</td>
-                    <td>@Model[i].DateSent</td>
-                    <td><a href="/users/@Model[i].AuthorUserName">@Model[i].AuthorUserName</a></td>
-                    <td>
-                        <button title="Reply" class="btn btn-success"
-                                @onclick="@(e => ReplyMessage(messageDto))">
-                            <i class="fas fa-reply"></i>
-                        </button>
-                        <button title="Delete" class="btn btn-danger"
-                                @onclick="@(e => DeleteMessage(messageDto.Id))">
-                            <i class="fas fa-trash-alt"></i>
-                        </button>
-                    </td>
-                </tr>
+            <tr>
+                <th scope="row">@(i+1)</th>
+                <td>@Model[i].Title</td>
+                <td>@Model[i].Body</td>
+                <td>@Model[i].DateSent</td>
+                <td><a href="/users/@Model[i].AuthorUserName">@Model[i].AuthorUserName</a></td>
+                <td><a href="/users/@Model[i].AuthorUserName">@Model[i].RecipientUserName</a></td>
+                <td>
+                    <button title="Reply" class="btn btn-success"
+                            @onclick="@(e => ReplyMessage(messageDto))">
+                        <i class="fas fa-reply"></i>
+                    </button>
+                    <button title="Delete" class="btn btn-danger"
+                            @onclick="@(e => DeleteMessage(messageDto.Id))">
+                        <i class="fas fa-trash-alt"></i>
+                    </button>
+                </td>
+            </tr>
             }
 
         </tbody>
