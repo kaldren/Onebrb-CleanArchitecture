@@ -1,7 +1,10 @@
-﻿@using Onebrb.Core.Dtos.Messages
-@using Onebrb.Client.Settings
+﻿@using System.Text;
+@using System.Text.Json;
 @using Microsoft.Extensions.Configuration
 @using Microsoft.AspNetCore.SignalR.Client
+@using Onebrb.Core.Dtos.Messages
+@using Onebrb.Client.Settings
+@using Onebrb.Core.Dtos.User
 @inject IConfiguration Configuration
 @inject HttpClient Http
 @inject NavigationManager NavigationManager
@@ -9,28 +12,24 @@
 
 <Notification CssClass="@NotificationCssClass" Message="@ResponseMessage"></Notification>
 
-@{ 
-    <p>Your conversation with @{ConversationWith}</p>
-}
-
 @if (Messages?.Count > 0)
 {
-<ul class="individual-conversation">
-    @for (int i = 0; i < Messages.Count; i++)
-    {
-        <li class="individual-conversation-item">
-            <span class="individual-conversation-author">@Messages[i].AuthorUserName</span>
-            <span class="individual-conversation-message">@Messages[i].Body</span>
-        </li>
-    }
-    @foreach (var message in newMessages)
-    {
-        <li class="individual-conversation-item">
-            <span class="individual-conversation-author">@message.Author</span>
-            <span class="individual-conversation-message">@message.Body</span>
-        </li>
-    }
-</ul>
+    <ul class="individual-conversation">
+        @for (int i = 0; i < Messages.Count; i++)
+        {
+            <li class="individual-conversation-item">
+                <span class="individual-conversation-author">@Messages[i].AuthorUserName</span>
+                <span class="individual-conversation-message">@Messages[i].Body</span>
+            </li>
+        }
+        @foreach (var message in newMessages)
+        {
+            <li class="individual-conversation-item">
+                <span class="individual-conversation-author">@message.Author</span>
+                <span class="individual-conversation-message">@message.Body</span>
+            </li>
+        }
+    </ul>
 }
 
 
@@ -47,6 +46,7 @@
     public UIStyles UIStyles { get; set; }
 
     public List<MessageDto> Messages { get; set; }
+    public UserDto OtherUser { get; set; }
 
     [Parameter]
     public string ConversationWith { get; set; }
@@ -91,8 +91,16 @@
         }
         else
         {
+            // Gets the other user (that we're having conversation with)
+            var jsonString = await response.Content.ReadAsStringAsync();
+            OtherUser = JsonSerializer.Deserialize<UserDto>(jsonString,
+            new JsonSerializerOptions
+            {
+                PropertyNameCaseInsensitive = true
+            });
+
             // Check for conversation
-            Messages = await Http.GetFromJsonAsync<List<MessageDto>>($"api/messages?type=conversation&with=1");
+                Messages = await Http.GetFromJsonAsync<List<MessageDto>>($"api/messages?type=conversation&with={OtherUser?.Id}");
 
             if (Messages != null && Messages.Count > 0)
             {

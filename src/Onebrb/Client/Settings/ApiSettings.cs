@@ -21,5 +21,6 @@
     {
         public string GetUserApiEndpoint { get; set; }
         public string GetCurrentUserApiEndpoint { get; set; }
+        public string SearchUserApiEndpoint { get; set; }
     }
 }

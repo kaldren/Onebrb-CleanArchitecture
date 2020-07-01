@@ -84,8 +84,9 @@ namespace Onebrb.Server.Controllers.Api
         /// </summary>
         /// <param name="type">Messages type (sent, received or archived)</param>
         /// <param name="with">The user with whom we have a conversation</param>
-        /// <returns>All of the user's sent, received or archived messages</returns>
         /// <response code="200">Returns the requested messages</response>
+        /// <response code="200">The messages weren't found</response>
+        /// <returns>All of the user's sent, received or archived messages</returns>
         [HttpGet]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
