@@ -9,7 +9,6 @@ namespace Onebrb.Core.Entities
 {
     public class Message : BaseEntity<int>
     {
-        public string Title { get; set; }
         public string Body { get; set; }
         public DateTime DateSent { get; set; } = DateTime.UtcNow;
         public int AuthorId { get; set; }

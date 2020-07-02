@@ -40,7 +40,6 @@ namespace Onebrb.UnitTests.Controllers
                 IsDeletedForRecipient = false,
                 RecipientId = 2,
                 RecipientUserName = "johndoe",
-                Title = "Test title"
             };
             mockService.Setup(service => service.GetMessageById(messageId)).ReturnsAsync(expectedMessage);
             var handler = new GetMessageByIdHandler(mockService.Object);
@@ -91,7 +90,6 @@ namespace Onebrb.UnitTests.Controllers
                 IsDeletedForRecipient = false,
                 RecipientId = 2,
                 RecipientUserName = "johndoe",
-                Title = "Test title"
             };
             mockService.Setup(service => service.DeleteMessage(messageId, userId)).ReturnsAsync(expectedMessage);
             var handler = new DeleteMessageHandler(mockService.Object);
