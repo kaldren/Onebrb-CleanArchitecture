@@ -1,0 +1,86 @@
+﻿@page "/users/{username}"
+@using Microsoft.AspNetCore.Authorization
+@using Microsoft.Extensions.Configuration
+@using System.Net.Http
+@using Onebrb.Client.Shared.Users
+@using Onebrb.Client.Shared.Messages
+@using Onebrb.Client.Settings
+@using Onebrb.Core.Dtos.User
+@using Onebrb.Client.Helpers
+@inject IConfiguration Configuration
+@attribute [Authorize]
+@inject HttpClient Http
+
+<Notification CssClass="@CssClass" Message="@StatusMessage" />
+
+@if (Model == null)
+{
+    return;
+}
+
+<div class="profile-options">
+    <button class="btn btn-primary" title="View profile"
+            @onclick="@(e => OnProfileOptionsButtonClick("profile"))">
+        <i class="fas fa-user"></i>
+    </button>
+    <button class="btn btn-primary" title="Send message"
+            @onclick="@(e => OnProfileOptionsButtonClick("message"))">
+        <i class="fas fa-envelope"></i>
+    </button>
+</div>
+
+@if (RazorComponent == RazorComponents.UserProfile)
+{
+    <UserProfile Model="@Model" />
+    return;
+}
+@if (RazorComponent == RazorComponents.MessageForm)
+{
+    <MessageForm Recipient="@Model.UserName"></MessageForm>
+    return;
+}
+
+@code {
+    [Parameter]
+    public string UserName { get; set; }
+    public string CssClass { get; set; }
+    public string StatusMessage { get; set; }
+    public UsersSettings UsersSettings { get; set; }
+    public UserDto Model { get; set; }
+    public RazorComponents RazorComponent { get; set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        UsersSettings = Configuration.GetSection(nameof(ApiSettings)).Get<ApiSettings>().UsersSettings;
+
+        try
+        {
+            Model = await Http.GetFromJsonAsync<UserDto>($"{UsersSettings.GetUserApiEndpoint}/{UserName}");
+            CssClass = "hidden";
+            RazorComponent = RazorComponents.UserProfile;
+        }
+        catch (Exception)
+        {
+            CssClass = "alert alert-danger";
+            StatusMessage = "This username doesn't exist.";
+        }
+    }
+
+    private void OnProfileOptionsButtonClick(string show)
+    {
+        switch (show)
+        {
+            case "profile":
+                RazorComponent = RazorComponents.UserProfile;
+                break;
+
+            case "message":
+                RazorComponent = RazorComponents.MessageForm;
+                break;
+
+            default:
+                RazorComponent = RazorComponents.UserProfile;
+                break;
+        }
+    }
+}

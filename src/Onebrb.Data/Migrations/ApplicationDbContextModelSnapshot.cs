@@ -202,65 +202,7 @@ namespace Onebrb.Infrastructure.Migrations
                     b.ToTable("AspNetUserTokens");
                 });
 
-            modelBuilder.Entity("Onebrb.Core.Entities.ApplicationUserMessage", b =>
-                {
-                    b.Property<int>("MessageId")
-                        .HasColumnType("int");
-
-                    b.Property<int>("UserId")
-                        .HasColumnType("int");
-
-                    b.HasKey("MessageId", "UserId");
-
-                    b.ToTable("ApplicationUserMessages");
-                });
-
-            modelBuilder.Entity("Onebrb.Core.Entities.Message", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int")
-                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
-
-                    b.Property<int>("AuthorId")
-                        .HasColumnType("int");
-
-                    b.Property<string>("AuthorUserName")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("Body")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<DateTime>("DateSent")
-                        .HasColumnType("datetime2");
-
-                    b.Property<bool>("IsArchivedForAuthor")
-                        .HasColumnType("bit");
-
-                    b.Property<bool>("IsArchivedForRecipient")
-                        .HasColumnType("bit");
-
-                    b.Property<bool>("IsDeletedForAuthor")
-                        .HasColumnType("bit");
-
-                    b.Property<bool>("IsDeletedForRecipient")
-                        .HasColumnType("bit");
-
-                    b.Property<int>("RecipientId")
-                        .HasColumnType("int");
-
-                    b.Property<string>("RecipientUserName")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("Title")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("Messages");
-                });
-
-            modelBuilder.Entity("Onebrb.Infrastructure.Entities.ApplicationRole", b =>
+            modelBuilder.Entity("Onebrb.Core.Entities.ApplicationRole", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -289,7 +231,7 @@ namespace Onebrb.Infrastructure.Migrations
                     b.ToTable("Roles");
                 });
 
-            modelBuilder.Entity("Onebrb.Infrastructure.Entities.ApplicationUser", b =>
+            modelBuilder.Entity("Onebrb.Core.Entities.ApplicationUser", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -368,9 +310,66 @@ namespace Onebrb.Infrastructure.Migrations
                     b.ToTable("Users");
                 });
 
+            modelBuilder.Entity("Onebrb.Core.Entities.ApplicationUserMessage", b =>
+                {
+                    b.Property<int>("MessageId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("ApplicationUserId")
+                        .HasColumnType("int");
+
+                    b.HasKey("MessageId", "ApplicationUserId");
+
+                    b.HasIndex("ApplicationUserId");
+
+                    b.ToTable("ApplicationUserMessages");
+                });
+
+            modelBuilder.Entity("Onebrb.Core.Entities.Message", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int")
+                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
+
+                    b.Property<int>("AuthorId")
+                        .HasColumnType("int");
+
+                    b.Property<string>("AuthorUserName")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Body")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime>("DateSent")
+                        .HasColumnType("datetime2");
+
+                    b.Property<bool>("IsArchivedForAuthor")
+                        .HasColumnType("bit");
+
+                    b.Property<bool>("IsArchivedForRecipient")
+                        .HasColumnType("bit");
+
+                    b.Property<bool>("IsDeletedForAuthor")
+                        .HasColumnType("bit");
+
+                    b.Property<bool>("IsDeletedForRecipient")
+                        .HasColumnType("bit");
+
+                    b.Property<int>("RecipientId")
+                        .HasColumnType("int");
+
+                    b.Property<string>("RecipientUserName")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("Messages");
+                });
+
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<int>", b =>
                 {
-                    b.HasOne("Onebrb.Infrastructure.Entities.ApplicationRole", null)
+                    b.HasOne("Onebrb.Core.Entities.ApplicationRole", null)
                         .WithMany()
                         .HasForeignKey("RoleId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -379,7 +378,7 @@ namespace Onebrb.Infrastructure.Migrations
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserClaim<int>", b =>
                 {
-                    b.HasOne("Onebrb.Infrastructure.Entities.ApplicationUser", null)
+                    b.HasOne("Onebrb.Core.Entities.ApplicationUser", null)
                         .WithMany()
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -388,7 +387,7 @@ namespace Onebrb.Infrastructure.Migrations
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserLogin<int>", b =>
                 {
-                    b.HasOne("Onebrb.Infrastructure.Entities.ApplicationUser", null)
+                    b.HasOne("Onebrb.Core.Entities.ApplicationUser", null)
                         .WithMany()
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -397,13 +396,13 @@ namespace Onebrb.Infrastructure.Migrations
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserRole<int>", b =>
                 {
-                    b.HasOne("Onebrb.Infrastructure.Entities.ApplicationRole", null)
+                    b.HasOne("Onebrb.Core.Entities.ApplicationRole", null)
                         .WithMany()
                         .HasForeignKey("RoleId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("Onebrb.Infrastructure.Entities.ApplicationUser", null)
+                    b.HasOne("Onebrb.Core.Entities.ApplicationUser", null)
                         .WithMany()
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -412,7 +411,7 @@ namespace Onebrb.Infrastructure.Migrations
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserToken<int>", b =>
                 {
-                    b.HasOne("Onebrb.Infrastructure.Entities.ApplicationUser", null)
+                    b.HasOne("Onebrb.Core.Entities.ApplicationUser", null)
                         .WithMany()
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -421,7 +420,13 @@ namespace Onebrb.Infrastructure.Migrations
 
             modelBuilder.Entity("Onebrb.Core.Entities.ApplicationUserMessage", b =>
                 {
-                    b.HasOne("Onebrb.Core.Entities.Message", null)
+                    b.HasOne("Onebrb.Core.Entities.ApplicationUser", "ApplicationUser")
+                        .WithMany()
+                        .HasForeignKey("ApplicationUserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("Onebrb.Core.Entities.Message", "Message")
                         .WithMany("ApplicationUserMessage")
                         .HasForeignKey("MessageId")
                         .OnDelete(DeleteBehavior.Cascade)
